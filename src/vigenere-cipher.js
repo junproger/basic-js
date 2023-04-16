@@ -20,16 +20,54 @@ const { NotImplementedError } = require('../extensions/index.js');
  * 
  */
 class VigenereCipheringMachine {
-  encrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+  constructor(direct = true) {
+    this.direct = direct;
+    this.tabula = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    this.module = this.tabula.length;
   }
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+
+  encrypt(message, key) {
+    const encode = [];
+    if (!message || !key) throw new Error('Incorrect arguments!');
+    message = message.toUpperCase();
+    key = key.toUpperCase();
+    let keyIndex = 0;
+    for (let char of message) {
+      if (this.tabula.includes(char)) {
+        encode.push((this.tabula.indexOf(key[keyIndex % key.length]) + this.tabula.indexOf(char)) % this.module);
+        keyIndex += 1;
+      } else {
+        encode.push(char);
+      }
+    };
+    if (this.direct) {
+      return encode.map((code) => typeof(code) !== 'number' ? code : this.tabula[code]).join('');
+    } else {
+      return encode.map((code) => typeof(code) !== 'number' ? code : this.tabula[code]).reverse().join('');
+    }
   }
+
+  decrypt(message, key) {
+    const decode = [];
+    if (!message || !key) throw new Error('Incorrect arguments!');
+    message = message.toUpperCase();
+    key = key.toUpperCase();
+    let keyIndex = 0;
+    for (let char of message) {
+      if (this.tabula.includes(char)) {
+        decode.push((this.tabula.indexOf(char) - this.tabula.indexOf(key[keyIndex % key.length]) + this.module) % this.module);
+        keyIndex += 1;
+      } else {
+        decode.push(char);
+      }
+    };
+    if (this.direct) {
+      return decode.map((code) => typeof(code) !== 'number' ? code : this.tabula[code]).join('');
+    } else {
+      return decode.map((code) => typeof(code) !== 'number' ? code : this.tabula[code]).reverse().join('');
+    }
+  }
+
 }
 
-module.exports = {
-  VigenereCipheringMachine
-};
+module.exports = { VigenereCipheringMachine };
